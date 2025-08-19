@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Manage Users</h1>
+
+<button class="btn btn-success mb-3" data-toggle="modal" data-target="#addUserModal">
+    Add User
+</button>
+
+<form method="GET" action="{{ url_for('views.home') }}" class="form-inline mb-3">
+    <input type="text" name="q" value="{{ request.args.get('q', '') }}" placeholder="Search users" class="form-control mr-2">
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a href="{{ url_for('views.home', sort='id', order='asc' if order=='desc' else 'desc') }}">
+                    ID
+                </a>
+            </th>
+            <th>
+                <a href="{{ url_for('views.home', sort='email', order='asc' if order=='desc' else 'desc') }}">
+                    Email
+                </a>
+            </th>
+            <th>
+                <a href="{{ url_for('views.home', sort='username', order='asc' if order=='desc' else 'desc') }}">
+                    Username
+                </a>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.username }}</td>
+            <td>
+                <!-- Edit Button -->
+                <button class="btn btn-primary btn-sm" 
+                        data-toggle="modal" 
+                        data-target="#editUserModal{{ u.id }}">
+                    Edit
+                </button>
+
+                <button class="btn btn-danger btn-sm" 
+                        data-toggle="modal" 
+                        data-target="#deleteUserModal{{ u.id }}">
+                    Delete
+                </button>
+            </td>
+        </tr>
+
+        <div class="modal fade" id="editUserModal{{ u.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ url_for('views.edit_user', id=u.id) }}" method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit User</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" name="email" value="{{ u.email }}" class="form-control mb-2" required>
+                            <input type="text" name="username" value="{{ u.username }}" class="form-control mb-2" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteUserModal{{ u.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete "<strong>{{ u.username }}</strong>"?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{{ url_for('views.delete_user', id=u.id) }}" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <tr>
+            <td colspan="4">No users found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('views.add_user') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New User</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input type="email" name="email" placeholder="Email" class="form-control mb-2" required>
+                    <input type="text" name="username" placeholder="Username" class="form-control mb-2" required>
+                    <input type="password" name="password1" placeholder="Password" class="form-control mb-2" required>
+                    <input type="password" name="password2" placeholder="Confirm Password" class="form-control mb-2" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
